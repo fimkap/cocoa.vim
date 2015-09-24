@@ -13,12 +13,10 @@ endf
 
 let s:docsets =  []
 let locations = [
-			\	{'path': '/Developer/Documentation/DocSets/com.apple.ADC_Reference_Library.CoreReference.docset',
-			\	'alias': 'Leopard'},
-			\	{'path': '/Developer/Documentation/DocSets/com.apple.adc.documentation.AppleSnowLeopard.CoreReference.docset',
-			\	'alias': 'Snow Leopard'},
-			\	{'path': '/Developer/Platforms/iPhoneOS.platform/Developer/Documentation/DocSets/com.apple.adc.documentation.AppleiPhone3_0.iPhoneLibrary.docset',
-			\	'alias': 'iPhone 3.0'}
+			\	{'path': '/Applications/Xcode.app/Contents/Developer/Documentation/DocSets/com.apple.adc.documentation.Xcode.docset',
+			\	'alias': 'Xcode'},
+			\	{'path': '/Applications/Xcode.app/Contents/Developer/Documentation/DocSets/com.apple.adc.documentation.iOS.docset',
+			\	'alias': 'iOS'}
 			\	]
 for location in locations
 	if isdirectory(location.path)
@@ -26,14 +24,16 @@ for location in locations
 	endif
 endfor
 
-let s:docset_cmd = '/Developer/usr/bin/docsetutil search -skip-text -query '
+let s:docset_cmd = '/Applications/Xcode.app/Contents/Developer/usr/bin/docsetutil search -skip-text -query '
 
 fun s:OpenFile(file)
+	echom a:file
 	if a:file =~ '/.*/man/'
 		exe ':!'.substitute(&kp, '^man -s', 'man', '').' '.a:file
 	else
 		" Sometimes Xcode doesn't download a bundle fully, and docsetutil is
 		" inaccurate.
+		echom a:file
 		if !filereadable(matchstr(a:file, '^.*\ze#.*$'))
 			echoh ErrorMsg
 			echom 'File "'.a:file.'" is not readable.'
@@ -66,6 +66,7 @@ fun objc#man#ShowDoc(...)
 
 	let references = {}
 
+	echom 'in showdoc'
 	" First check Cocoa docs for word using docsetutil
 	for location in s:docsets
 		let docset = location.path
@@ -76,6 +77,7 @@ fun objc#man#ShowDoc(...)
 			let path = matchstr(line, '\S*$')
 			if path[0] != '/' | let path = docset.path | endif
 
+			echom path
 			" Ignore duplicate entries
 			if has_key(references, path) | continue | endif
 
